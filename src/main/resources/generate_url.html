@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+
+<script>
+    var request = new XMLHttpRequest()
+
+    request.open('GET', 'https://pemilu2019.kpu.go.id/static/json/hhcw/ppwp/1/1492/1672/1675/900003517.json', true)
+    request.onload = function() {
+        // Begin accessing JSON data here
+        var data = JSON.parse(this.response)
+
+        console.info(data);
+
+    }
+
+    request.send()
+</script>
+
+</body>
+
+</html>
