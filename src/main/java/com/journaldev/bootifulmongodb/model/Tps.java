@@ -26,6 +26,8 @@ public class Tps {
 
     private String nama;
 
+    private String psu;
+
     private int selisih;
 
     @Field("ts")
@@ -208,6 +210,22 @@ public class Tps {
         this.voteId = voteId;
     }
 
+    public String getPsu() {
+        return psu;
+    }
+
+    public void setPsu(String psu) {
+        this.psu = psu;
+    }
+
+    public int getSelisih() {
+        return selisih;
+    }
+
+    public void setSelisih(int selisih) {
+        this.selisih = selisih;
+    }
+
     public class Chart {
         @JsonProperty("21")
         private int _21;
@@ -235,4 +253,14 @@ public class Tps {
         }
     }
 
+    @Override
+    public String toString() {
+        return "Tps{" +
+                "provinsi='" + provinsi + '\'' +
+                ", kota='" + kota + '\'' +
+                ", kecamatan='" + kecamatan + '\'' +
+                ", kelurahan='" + kelurahan + '\'' +
+                ", nama='" + nama + '\'' +
+                '}';
+    }
 }

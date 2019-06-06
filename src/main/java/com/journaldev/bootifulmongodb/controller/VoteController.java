@@ -4,6 +4,8 @@ import com.journaldev.bootifulmongodb.dal.VoteRepository;
 import com.journaldev.bootifulmongodb.dal.VoteService;
 import com.journaldev.bootifulmongodb.model.DetailTps;
 import com.journaldev.bootifulmongodb.model.Vote;
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.Unirest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -91,5 +93,7 @@ public class VoteController {
         LOG.info("Find User");
         return ResponseEntity.status(HttpStatus.OK).body(voteService.voteList(collection));
     }
+
+
 
 }

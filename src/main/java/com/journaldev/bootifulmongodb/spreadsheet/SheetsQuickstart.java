@@ -14,22 +14,25 @@ import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.SheetsScopes;
 import com.google.api.services.sheets.v4.model.UpdateValuesResponse;
 import com.google.api.services.sheets.v4.model.ValueRange;
+import com.journaldev.bootifulmongodb.model.Tps;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.security.GeneralSecurityException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class SheetsQuickstart {
     public static final String APPLICATION_NAME = "Google Sheets API Java Quickstart";
     public static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
     public static final String TOKENS_DIRECTORY_PATH = "tokens";
-    public static final Object[] COLUMN= new Object[]{"Provinsi","Kota", "Kecamatan", "Kelurahan", "No TPS", "Jumlah Pemilih",
-    "Jumlah Pengguna", "Total Suara", "Suara Tidak Sah", "Suara Sah", "JOKMA", "PAS", "JOKMA+PAS", "Suara Sah - (JOKMA+PAS) "};
+    public static final Object[] COLUMN= new Object[]{"Generate At", "Provinsi","Kota", "Kecamatan", "Kelurahan", "No TPS", "Jumlah Pemilih",
+    "Jumlah Pengguna", "Total Suara", "Suara Tidak Sah", "Suara Sah", "JOKMA", "PAS", "JOKMA+PAS", "Mismatch", "images"};
 
     public static final String spreadsheetId = "1TB1c6pCqdxOifkQGuOyRZTz3V7nMGWDSJxeicywvomg";
     /**
@@ -106,6 +109,35 @@ public class SheetsQuickstart {
                 Arrays.asList(SheetsQuickstart.COLUMN)
         );
 
+        ValueRange body = new ValueRange()
+                .setValues(values);
+        UpdateValuesResponse response =
+                service.spreadsheets().values().update(SheetsQuickstart.spreadsheetId, range, body)
+                        .setValueInputOption("USER_ENTERED")
+                        .execute();
+        System.out.printf("%d cells updated.", response.getUpdatedCells());
+
+        System.out.println(service.getBaseUrl());
+
+        return response.getUpdatedCells();
+    }
+
+    public static int generateDataRows(String provinsi, List<Tps> tpsList)throws IOException, GeneralSecurityException{
+        String range = provinsi+"!A2:Z";
+        final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+
+        // Build a new authorized API client service.
+        Sheets service = new Sheets.Builder(HTTP_TRANSPORT, SheetsQuickstart.JSON_FACTORY, SheetsQuickstart.getCredentials(HTTP_TRANSPORT))
+                .setApplicationName(SheetsQuickstart.APPLICATION_NAME)
+                .build();
+        List<List<Object>> values = new ArrayList<>();
+
+        for(Tps tps : tpsList){
+            String imageString = Arrays.asList(tps.getImages()).stream().collect(Collectors.joining(" , "));
+            Object[] rows = new Object[]{tps.getGenerateAt(), tps.getProvinsi(), tps.getKota(), tps.getKecamatan(), tps.getKelurahan(), tps.getNama(), tps.getPemilihJumlah(),
+                    tps.getPenggunaJumlah(), tps.getSuaraTotal(), tps.getSuaraTidakSah(), tps.getSuaraSah(), tps.getChart().get_21(), tps.getChart().get_22(), tps.getChart().totalChart(), tps.getSuaraSah() - tps.getChart().totalChart(), imageString};
+            values.add(Arrays.asList(rows));
+        }
         ValueRange body = new ValueRange()
                 .setValues(values);
         UpdateValuesResponse response =

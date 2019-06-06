@@ -1,13 +1,13 @@
-let startIdex = 0;
-let notGenerateAt = ''
-let provinsi = ''
+
 function callEachTpsByProvinsi(provinsi, notGenerateAt, startIdex) {
     let requestCallAllTps = new XMLHttpRequest();
-    requestCallAllTps.open('GET', 'http://localhost:2000/tps/list-notInGenerate?collection=' + provinsi + "&notGenerateAt=" + notGenerateAt + "&page=" + page, true);
+    requestCallAllTps.open('GET', 'http://localhost:2000/tps/list-notInGenerate?collection=' + provinsi + "&notGenerateAt=" + notGenerateAt + "&page=" + startIdex, true);
     requestCallAllTps.send();
     let no = 0;
+    console.log("index start", startIdex);
+    let dataPerTpses = [];
     requestCallAllTps.onload = function () {
-        let dataPerTpses = JSON.parse(this.response)
+        dataPerTpses = JSON.parse(this.response)
         for (let i = 0; i < dataPerTpses.length; i++) {
             let eachTps = dataPerTpses[i];
             if (eachTps['url'] !== undefined) {
@@ -27,6 +27,7 @@ function callEachTpsByProvinsi(provinsi, notGenerateAt, startIdex) {
                             }
                         }).then(res => res).then(response => {
                             console.info(response.status)
+                            console.log("index end", startIdex);
                         }).catch(error => {
                                 console.error('Error:', error)
                             });
@@ -36,8 +37,8 @@ function callEachTpsByProvinsi(provinsi, notGenerateAt, startIdex) {
             no++;
             console.log('count', no, "of", dataPerTpses.length, provinsi, notGenerateAt, startIdex);
             if(no === dataPerTpses.length){
-                dataPerTpses = null
                 startIdex++;
+                no = 0;
                 callEachTpsByProvinsi(provinsi, notGenerateAt, startIdex);
             }
         }

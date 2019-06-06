@@ -10,6 +10,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.Arrays;
 import java.util.List;
@@ -24,6 +25,9 @@ public class VoteService {
     private MongoTemplate mongoTemplate;
 
     private final String imageLink = "https://pemilu2019.kpu.go.id/img/c/";
+
+    @Autowired
+    private TpsRepository tpsRepository;
 
 
     public void saveDinamic(Vote vote) {
@@ -70,6 +74,9 @@ public class VoteService {
             if(total2122 != tps.getSuaraSah()){
                 update.set("isFraud", true);
                 update.set("selisih", tps.getSuaraSah() - total2122);
+            }else {
+                update.set("isFraud", false);
+                update.set("selisih", 0);
             }
 
             String images[] = new String[tps.getImages().length];
@@ -133,7 +140,18 @@ public class VoteService {
     public List<Tps> tpsList(String collectionName, String notInGenerateAt, int page) {
         Query query = new Query();
         query.addCriteria(Criteria.where("generateAt").ne(notInGenerateAt));
-        query.with(new PageRequest(page, 1000));
+       // query.with(new PageRequest(page, 1000));
+        return mongoTemplate.find(query, Tps.class, collectionName+"_TPS");
+    }
+
+    public List<Tps> tpsListForSpeadsheet(String collectionName, String generateAt) {
+       // tpsRepository.findByIsFraud(true);
+        Query query = new Query();
+        if(!StringUtils.isEmpty(generateAt)){
+            query.addCriteria(Criteria.where("generateAt").is(generateAt));
+        }
+        query.addCriteria(Criteria.where("isFraud").is(true));
+        // query.with(new PageRequest(page, 1000));
         return mongoTemplate.find(query, Tps.class, collectionName+"_TPS");
     }
 
